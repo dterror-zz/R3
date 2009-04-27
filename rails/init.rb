@@ -19,9 +19,3 @@ ActionController::Routing::Routes = newRouter
 
 
 
-
-
-
-
-
-

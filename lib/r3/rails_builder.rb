@@ -1,5 +1,28 @@
 module R3
 
+
+  class MockRoute
+    def initialize(app)
+      @app = app
+      @http_methods = []
+      @name = ''
+    end
+    
+    attr_accessor :http_methods, :name
+    
+    def mount_point?
+      false
+    end
+    
+    def handle(request, env)
+      @app.call(env)
+    end
+    
+    def compile(router)
+      []
+    end
+  end
+
   class RailsBuilder
     
     OPTIONS = [ :path_prefix, :name_prefix, :namespace, :requirements, :defaults, :conditions ]
@@ -33,12 +56,17 @@ module R3
       # Find all implicit optional segments and make them explicit
       regexp = defaults.keys.join('|')
       regexp = %r'((?:/|\.):(?:#{regexp}))'
+      
       path.gsub!(regexp, "(\1)")
-      
-      path = "#{options[:path_prefix]}/#{path}"
-      
-      # route = Rack::Router::Route.new(DynamicController, { :path_info => path }, {}, defaults, false)
-      route = Rack::Router::Route.new(DynamicController, path, {}, {}, defaults, false)
+
+      path = "/#{path}" unless path[0] == ?/
+      path = "#{path}/" unless path[-1] == ?/
+
+      prefix = options[:path_prefix].to_s.gsub(/^\//,'')
+      path = "/#{prefix}#{path}" unless prefix.blank?
+
+      #route = Rack::Router::Route.new(DynamicController, path, {:path_info => path}, {}, defaults, false)
+      route = MockRoute.new(R3::SimpleRackApps::HiApp)
       @routes << route
       route
     end
