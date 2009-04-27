@@ -8,20 +8,20 @@ module R3
   autoload :RailsBuilder,             'r3/rails_builder'
 end
 
-module Rack::Router::Routable
-  def call(env)
-    # env["rack_router.params"] ||= {}
-    # 
-    # route_set = @route_sets[env["REQUEST_METHOD"]]
-    # env["PATH_INFO"].scan(/#{SEGMENT_CHARACTERS}+/) do |s|
-    #   route_set = route_set[s]
-    # end
-    route = @routes[0]
-    route.handle({},env)
-  end
-
-end
-
+# module Rack::Router::Routable
+#   def call(env)
+#     # env["rack_router.params"] ||= {}
+#     # 
+#     # route_set = @route_sets[env["REQUEST_METHOD"]]
+#     # env["PATH_INFO"].scan(/#{SEGMENT_CHARACTERS}+/) do |s|
+#     #   route_set = route_set[s]
+#     # end
+#     # route_set.handle(Rack::Request.new(env), env)
+#     @routes.each do |route|
+#       route.handle("",{})
+#     end
+#   end
+# end
 
 
 
