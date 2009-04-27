@@ -7,18 +7,13 @@ module R3
     def initialize
       self.configuration_files = []
       @routes = []
-      @mapper = ActionController::Routing::RouteSet::Mapper
     end
   
-    # def draw(options={}, &block)
-    #   prepare(options, &block)
-    # end
-
-    def draw
-      yield @mapper.new(self)
+    def draw(options={}, &block)
+      options[:builder] = R3::RailsBuilder
+      prepare(options, &block)
     end
     
-    include R3::MapperInterface
     include R3::InitializationInterface
   end
   
