@@ -29,14 +29,6 @@ end
 #   end
 # end
 
-=begin
-
-a = Rack::Router.new do |m|
-  m.map '/nada', :to => Proc.new {|env| [200,{'Content-Type'=>'text/plain'},['Ok']] }
-end
-
-=end
-
 
 
 
