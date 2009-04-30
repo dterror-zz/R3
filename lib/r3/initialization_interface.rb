@@ -1,4 +1,5 @@
 module R3
+  # That's just for readability
   module InitializationInterface
 
       attr_accessor :configuration_files

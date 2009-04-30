@@ -29,8 +29,10 @@ end
 #   end
 # end
 
+class DebuggerClass < Hash
+end
 
-
+Debugger = DebuggerClass.new
 
 
 
