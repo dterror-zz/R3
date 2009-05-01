@@ -20,7 +20,9 @@ module R3
     # Refactor this whole thing. It needs strategy.
     def call(env)
        res = routable_call(env)
-       raise ActionController::RoutingError, "No routes matched" if res[0] == 404
+       if res[1]["X-Rack-Rotuter-Status"] == "404 Not Found" && !env['rack_router.testing']
+          raise ActionController::RoutingError, "No routes matched"
+       end
        res
     end
  end

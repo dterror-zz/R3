@@ -4,6 +4,8 @@ module R3
     
     OPTIONS = [ :path_prefix, :name_prefix, :namespace, :requirements, :defaults, :conditions ]
     REQUEST_METHODS = Rack::Request.instance_methods - Object.instance_methods
+
+    
     
     class DynamicController
       def self.call(env)
@@ -17,6 +19,15 @@ module R3
       end
     end
     
+    module MethodHijack
+       # let's hope they don't change the method signature
+       def map(*args)
+          Rack::Router::Builder::Simple.new.method(:map).call(*args)
+       end
+    end
+    ActionController::Routing::RouteSet::Mapper.instance_eval { include(MethodHijack) }
+    
+         
     def self.run(options = {})
       builder = new
       mapper  = ActionController::Routing::RouteSet::Mapper.new(builder)

@@ -2,7 +2,7 @@
 # These helpers should be distributed, really.
 
 $LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
- 
+RAILS_ROOT = File.dirname(__FILE__)
 require "rubygems"
 require "spec"
 require "rack/router"
@@ -15,20 +15,39 @@ module Spec
       router.draw(options,&block)
     end
     
-    def prepare(options={}, &block)
-       options[:builder] = Rack::Router::Builder::Simple
-       router.prepare(options,&block)
+    def initialized?
+       @initialized ||= false
     end
     
+    def init
+       return if initialized?
+       gem 'rails'
+       require 'initializer'
+       Rails::Initializer.run(:require_frameworks) do |config|
+          config.frameworks -= [:active_record, :active_resource, :action_mailer] #anything else?
+       end
+       @initialized = true
+    end
+    
+    # def prepare(options={}, &block)
+    #    options[:builder] = Rack::Router::Builder::Simple
+    #    router.prepare(options,&block)
+    # end
+    
     def router
+       init
        @app ||= R3::Router.new
     end
     
-    def make_router_and_prepare(options={}, &block)
-       new_router = R3::Router.new
-       options[:builder] = Rack::Router::Builder::Simple
-       new_router.prepare(options,&block)
-       new_router
+    # def make_router_and_prepare(options={}, &block)
+    #    new_router = R3::Router.new
+    #    options[:builder] = Rack::Router::Builder::Simple
+    #    new_router.prepare(options,&block)
+    #    new_router
+    # end
+    
+    def make_router_and_draw(options={},&block)
+       R3::Router.new.draw(options={},&block)
     end
     
     def env_for(path, options = {})
@@ -39,6 +58,7 @@ module Spec
       env["SCRIPT_NAME"]     = options.delete(:script_name) || "/"
       env["HTTP_HOST"]       = options.delete(:host) || "example.org"
       env["rack.url_scheme"] = options[:scheme] if options[:scheme]
+      env["rack_router.testing"] = "1"
       env
     end
     
@@ -60,7 +80,7 @@ module Spec
         if @target[0] == 200
           @resp  = Marshal.load(@target[2])
           params = @resp['rack_router.params']
-          @app.to_s == @resp['app'] && @expected == params # && (!@exact || @expected.keys.length == @resp)
+          @app.to_s == @resp['app'] && @expected == params.reject {|k,v| k == :controller || v == nil }
         end
       end
       
@@ -147,7 +167,7 @@ end
  
 Object.instance_eval do
   def const_missing(name)
-    if name.to_s =~ /App$/
+    if name.to_s =~ /[App|stubController]$/
       Object.instance_eval %{
         class ::#{name}
           def self.call(env)
