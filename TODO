@@ -1,0 +1,13 @@
+- refactor builder#add_route
+- sleep
+- rename spec descriptions so they make more sense semantically, but that's definitely after sleep
+
+
+MISSING SPECS
+- with_options
+- restful_routes
+
+
+
+SPECIAL CASES SPECS
+- See the Gobbling thing. In rack_router it returns a string, rails returns an array split by segment delimiter. Currently there's no entry point in the rack_router to post-format the capture nor to now what kind of capture it is. See that later as its not used that often. I've commented the globbing spec in connect_spec.rb

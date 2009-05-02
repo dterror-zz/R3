@@ -1,6 +1,10 @@
 # Shameless rip of from rack-router's spec helper.
 # These helpers should be distributed, really.
 
+# I could work aroung having to repeatedely specify :action => 'index', but I think
+# it's best to keep it explicit for readability and I reckon It'll keep me from making mistakes.
+
+
 $LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
 RAILS_ROOT = File.dirname(__FILE__)
 require "rubygems"
@@ -54,7 +58,7 @@ module Spec
       env = {}
       env["REQUEST_METHOD"]  = (options.delete(:method) || "GET").to_s.upcase
       env["REQUEST_URI"]     = ((options[:script_name] || "/") + path).squeeze("/")
-      env["PATH_INFO"]       = path.squeeze("/").sub(%r'/$', '')
+      env["PATH_INFO"]       = path.squeeze("/").sub(%r'/$', '').sub(/\?.*\Z/,'')
       env["SCRIPT_NAME"]     = options.delete(:script_name) || "/"
       env["HTTP_HOST"]       = options.delete(:host) || "example.org"
       env["rack.url_scheme"] = options[:scheme] if options[:scheme]

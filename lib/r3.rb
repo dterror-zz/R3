@@ -9,5 +9,21 @@ module R3
 end
 
 
+#  Have to monkey patch this because Rails expects that interfaces when
+#  ActionController::Routing::RouteSet::Mapper calls root to make a root
+#  route with a symbol parameter (refering to another already defined route)
+# it then does some working directly into the route object
+
+class Rack::Router::Route
+   
+   def defaults
+      @params
+   end
+   
+   def conditions
+      @request_conditions
+   end
+   
+end
 
 
