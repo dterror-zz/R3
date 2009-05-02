@@ -21,7 +21,7 @@ class Rack::Router::Route
    end
    
    def conditions
-      @request_conditions
+      @request_conditions.merge @segment_conditions
    end
    
 end

@@ -84,6 +84,7 @@ module Spec
         if @target[0] == 200
           @resp  = Marshal.load(@target[2])
           params = @resp['rack_router.params']
+   
           @app.to_s == @resp['app'] && @expected == params.reject {|k,v| k == :controller || v == nil }
         end
       end
