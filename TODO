@@ -1,12 +1,10 @@
-- refactor builder#add_route
-- sleep
-- rename spec descriptions so they make more sense semantically, but that's definitely after sleep
-
+- rename spec descriptions so they make more sense semantically
+- learn to inject error messages in #unfold_restful_routeset in spec_helper, make it more granular
 
 MISSING SPECS
 - with_options
 - restful_routes
-
+	- namespace
 
 
 SPECIAL CASES SPECS

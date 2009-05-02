@@ -38,7 +38,7 @@ describe "Basic R3::Router" do
 
          # user_id won't be available in the params hash beacuse this is something that rails does
          # and is out of the scope of this spec. Just got this test here to remember this detail
-         route_for('/hellostub?user_id=12').should have_route(HellostubController, :action => 'index')
+         route_for('/hellostub?user_id=12').should have_route(HellostubController)
       end
       
     end
@@ -56,7 +56,7 @@ describe "Basic R3::Router" do
       
       it "it rejecs the implicit and unused params" do
          router.draw {|map| map.connect '/hello', :controller => 'hellostub' }
-         route_for('/hello').should  have_route(HellostubController, {:action => 'index'})
+         route_for('/hello').should  have_route(HellostubController)
       end   
    end
    

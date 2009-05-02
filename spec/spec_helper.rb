@@ -1,9 +1,6 @@
 # Shameless rip of from rack-router's spec helper.
 # These helpers should be distributed, really.
 
-# I could work aroung having to repeatedely specify :action => 'index', but I think
-# it's best to keep it explicit for readability and I reckon It'll keep me from making mistakes.
-
 
 $LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
 RAILS_ROOT = File.dirname(__FILE__)
@@ -69,13 +66,44 @@ module Spec
     def route_for(path, options = {})
       @app.call env_for(path, options)
     end
+    
+    def unfold_restful_routeset(resource_name)
+      #Learn how to inject error messages to make it more granular
+      
+      # GET /<resource_name>      
+      route_for("/#{resource_name}", :method => 'GET').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'index')
+
+      # GET /<resource_name>/new
+      route_for("/#{resource_name}/new", :method => 'GET').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'new')
+
+      # POST /<resource_name>
+      route_for("/#{resource_name}", :method => 'POST').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'create')
+
+      # GET /<resource_name>/1
+      route_for("/#{resource_name}/1", :method => 'GET').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'show', :id => '1')
+
+      # GET /<resource_name>/1/edit
+      route_for("/#{resource_name}/1/edit", :method => 'GET').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'edit', :id => '1')
+
+      # PUT /<resource_name>/1
+      route_for("/#{resource_name}/1", :method => 'PUT').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'update', :id => '1')
+
+      # DELETE /<resource_name>/1
+      route_for("/#{resource_name}/1", :method => 'DELETE').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'destroy', :id => '1')
+    end
+
   end
+
+  
+
+  
+  
   
   module Matchers
     
     class HaveRoute
-      def initialize(app, expected, exact)
-        @app, @expected, @exact = app, expected, exact
+      def initialize(app, expected)
+        @app, @expected = app, expected
       end
       
       def matches?(target)
@@ -84,9 +112,9 @@ module Spec
         if @target[0] == 200
           @resp  = Marshal.load(@target[2])
           params = @resp['rack_router.params']
-   
-          @app.to_s == @resp['app'] && @expected == params.reject {|k,v| k == :controller || v == nil }
-        end
+           # it already tests match of app (contoller), so reject controller param
+           @app.to_s == @resp['app'] && @expected == params.reject {|k,v| k == :controller }
+         end
       end
       
       def failure_message
@@ -100,11 +128,11 @@ module Spec
     end
     
     def have_route(app, expected = {})
-      HaveRoute.new(app, expected, false)
-    end
-    
-    def have_exact_route(app, expected = {})
-      HaveRoute.new(app, expected, true)
+      # if it's a route to rails, add rails defaults to expected so I don't need to type them everytime
+      if app.to_s.match /[A-Z]{1}[a-z]+Controller$/
+        expected = R3::Builder::DEFAULT_PARAMS.merge(expected)
+      end
+      HaveRoute.new(app, expected)
     end
     
     def have_env(env)
@@ -172,7 +200,8 @@ end
  
 Object.instance_eval do
   def const_missing(name)
-    if name.to_s =~ /[App|stubController]$/
+    if name.to_s =~ /App$|[A-Z]{1}[a-z]+Controller$/
+      # super unless $1 == "Action"
       Object.instance_eval %{
         class ::#{name}
           def self.call(env)

@@ -1,11 +1,14 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
+# Maybe remove the unnecessary explicit use of defaults. Could just ignore the :action => 'index' thing
+# but it may be good for undersntadment
+
 describe "static segments connect recognition" do
    
    it "should connect simple url to controller" do
       router.draw {|map| map.connect '/hello', :controller => 'hellostub' }
       
-      route_for('/hello').should have_route(HellostubController, :action => 'index')
+      route_for('/hello').should have_route(HellostubController)
       route_for('/hello/world').should be_missing
    end
    

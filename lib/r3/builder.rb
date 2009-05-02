@@ -10,7 +10,7 @@ module R3
     
      OPTIONS = [ :path_prefix, :name_prefix, :namespace, :requirements, :defaults, :conditions, :request_method ]
      REQUEST_METHODS = Rack::Request.instance_methods - Object.instance_methods
-     DEFAULT_PARAMS = { :action => 'index', :id => nil }
+     DEFAULT_PARAMS = { :action => 'index', :id => nil, :format => 'html' }
          
     def self.run(options = {})
       builder = new
@@ -35,33 +35,33 @@ module R3
 
     def add_route(path, options = {}) 
        default_params = process_defaults(options)
-      
-       # Find all implicit optional segments and make them explicit∂
+
+       # Find all implicit optional segments and make them explicit
        path = reveal_implicit_segments(path, default_params.keys)
        path = "#{options[:path_prefix]}/#{path}"
 
 
-      request_conditions, segment_conditions = process_match_conditions( path,
+       request_conditions, segment_conditions = process_match_conditions( path,
                                                          (options[:conditions] || {}),
                                                          (options[:requirements] || {})
                                                       )
-      
-      route = Rack::Router::Route.new(DynamicController,
+                                                      
+       route = Rack::Router::Route.new(DynamicController,
                                                       path,
                                                       request_conditions,
                                                       segment_conditions,
                                                       default_params,
                                                       false )
                                                 
-      if options[:name]
-         route.name = options[:name_prefix] ? 
+       if options[:name]
+          route.name = options[:name_prefix] ? 
                         [options[:name_prefix], options[:name]].join('_').to_sym :
                         options[:name].to_sym
-         @named_routes << route
-      end
+          @named_routes << route
+       end
       
-      @routes << route
-      route        
+       @routes << route
+       route        
     end
     
     def add_named_route(name, path, options = {})
@@ -77,7 +77,7 @@ module R3
        defaults.merge!(options.reject do |k, v|
             OPTIONS.include?(k) || [:options, :requirements, :conditions, :defaults, :name].include?(k)
           end)
-       defaults.merge! (options[:defaults] || {})
+       defaults.merge! options[:defaults] || {}
        
        if defaults[:path] && !defaults[:path].empty?
           raise ActionController::RoutingError, ":path cannot have a default"
