@@ -144,6 +144,18 @@ describe "DSL options" do
          route_for('/hellostub/edit/1').should have_route(HellostubController,
                                                                :action => 'edit', :id => '1')         
       end
+      
+      it "should understand with_options block" do
+        router.draw do |map|
+          map.with_options :controller => 'posts' do |posts|
+            posts.list '/posts', :action => 'index'
+            posts.edit '/posts/:id/edit', :action => 'edit'
+          end
+        end
+        
+        route_for('/posts').should have_route(PostsController)
+        route_for('/posts/1/edit').should have_route(PostsController, :action => "edit", :id => '1')
+      end
    
    end
 

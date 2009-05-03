@@ -1,11 +1,9 @@
+- rewrite restful routes test strategy unfold_resourceful_routesets is bad
 - rename spec descriptions so they make more sense semantically
-- learn to inject error messages in #unfold_restful_routeset in spec_helper, make it more granular
 
-MISSING SPECS
-- with_options
-- restful_routes
-	- namespace
+SPECIAL CASES
 
+- See the Globbing thing. In rack_router it returns a string, rails returns an array split by segment delimiter. Currently there's no entry point in the rack_router to post-format the capture nor to now what kind of capture it is. See that later as its not used that often. I've commented the globbing spec in connect_spec.rb
 
-SPECIAL CASES SPECS
-- See the Gobbling thing. In rack_router it returns a string, rails returns an array split by segment delimiter. Currently there's no entry point in the rack_router to post-format the capture nor to now what kind of capture it is. See that later as its not used that often. I've commented the globbing spec in connect_spec.rb
+- name options to create new routes. I didn't even now that existed. map.resources :photos, :new => { :upload => :post }
+shouldn't just use :collection => { :upload => :post }

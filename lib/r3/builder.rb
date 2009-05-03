@@ -33,35 +33,41 @@ module R3
       route
     end
 
-    def add_route(path, options = {}) 
-       default_params = process_defaults(options)
+    def add_route(path, options = {})
+      # Work around, may be more common than expected
+      if options[:id] && options[:id].is_a?(Regexp)
+       options[:requirements] ||= {}
+       options[:requirements].merge!({:id => options[:id]})
+      end
 
-       # Find all implicit optional segments and make them explicit
-       path = reveal_implicit_segments(path, default_params.keys)
-       path = "#{options[:path_prefix]}/#{path}"
+      default_params = process_defaults(options)
+
+      # Find all implicit optional segments and make them explicit
+      path = reveal_implicit_segments(path, default_params.keys)
+      path = "#{options[:path_prefix]}/#{path}"
 
 
-       request_conditions, segment_conditions = process_match_conditions( path,
-                                                         (options[:conditions] || {}),
-                                                         (options[:requirements] || {})
-                                                      )
-                                                      
-       route = Rack::Router::Route.new(DynamicController,
-                                                      path,
-                                                      request_conditions,
-                                                      segment_conditions,
-                                                      default_params,
-                                                      false )
-                                                
-       if options[:name]
-          route.name = options[:name_prefix] ? 
-                        [options[:name_prefix], options[:name]].join('_').to_sym :
-                        options[:name].to_sym
-          @named_routes << route
-       end
-      
-       @routes << route
-       route        
+      request_conditions, segment_conditions = process_match_conditions( path,
+                                                       (options[:conditions] || {}),
+                                                       (options[:requirements] || {})
+                                                    )
+                                              
+      route = Rack::Router::Route.new(DynamicController,
+                                                    path,
+                                                    request_conditions,
+                                                    segment_conditions,
+                                                    default_params,
+                                                    false )
+                                        
+      if options[:name]
+        route.name = options[:name_prefix] ? 
+                      [options[:name_prefix], options[:name]].join('_').to_sym :
+                      options[:name].to_sym
+        @named_routes << route
+      end
+
+      @routes << route
+      route        
     end
     
     def add_named_route(name, path, options = {})

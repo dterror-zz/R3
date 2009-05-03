@@ -29,23 +29,13 @@ module Spec
        end
        @initialized = true
     end
-    
-    # def prepare(options={}, &block)
-    #    options[:builder] = Rack::Router::Builder::Simple
-    #    router.prepare(options,&block)
-    # end
+
     
     def router
        init
        @app ||= R3::Router.new
     end
     
-    # def make_router_and_prepare(options={}, &block)
-    #    new_router = R3::Router.new
-    #    options[:builder] = Rack::Router::Builder::Simple
-    #    new_router.prepare(options,&block)
-    #    new_router
-    # end
     
     def make_router_and_draw(options={},&block)
        R3::Router.new.draw(options={},&block)
@@ -67,29 +57,70 @@ module Spec
       @app.call env_for(path, options)
     end
     
-    def unfold_restful_routeset(resource_name)
-      #Learn how to inject error messages to make it more granular
+    def unfold_resourceful_routeset(resource_name, options = {})
+      # Rewrite this
       
       # GET /<resource_name>      
-      route_for("/#{resource_name}", :method => 'GET').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'index')
+      route_for("/#{resource_name}", :method => 'GET').should have_route(
+                                                                      "#{(options[:controller]||resource_name).to_s.camelize}Controller",
+                                                                        :action => 'index'
+                                                                      )
 
       # GET /<resource_name>/new
-      route_for("/#{resource_name}/new", :method => 'GET').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'new')
+      route_for("/#{resource_name}/new", :method => 'GET').should have_route(
+                                                                      "#{(options[:controller]||resource_name).to_s.camelize}Controller",
+                                                                       :action => 'new'
+                                                                       )
 
       # POST /<resource_name>
-      route_for("/#{resource_name}", :method => 'POST').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'create')
+      route_for("/#{resource_name}", :method => 'POST').should have_route(
+                                                                      "#{(options[:controller]||resource_name).to_s.camelize}Controller",
+                                                                       :action => 'create')
 
       # GET /<resource_name>/1
-      route_for("/#{resource_name}/1", :method => 'GET').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'show', :id => '1')
+      route_for("/#{resource_name}/1", :method => 'GET').should have_route(
+                                                                      "#{(options[:controller]||resource_name).to_s.camelize}Controller",
+                                                                       :action => 'show', :id => '1')
 
       # GET /<resource_name>/1/edit
-      route_for("/#{resource_name}/1/edit", :method => 'GET').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'edit', :id => '1')
+      route_for("/#{resource_name}/1/edit", :method => 'GET').should have_route(
+                                                                      "#{(options[:controller]||resource_name).to_s.camelize}Controller",
+                                                                       :action => 'edit', :id => '1')
 
       # PUT /<resource_name>/1
-      route_for("/#{resource_name}/1", :method => 'PUT').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'update', :id => '1')
+      route_for("/#{resource_name}/1", :method => 'PUT').should have_route(
+                                                                      "#{(options[:controller]||resource_name).to_s.camelize}Controller",
+                                                                       :action => 'update', :id => '1')
 
       # DELETE /<resource_name>/1
-      route_for("/#{resource_name}/1", :method => 'DELETE').should have_route("#{resource_name.to_s.camelize}Controller", :action => 'destroy', :id => '1')
+      route_for("/#{resource_name}/1", :method => 'DELETE').should have_route(
+                                                                      "#{(options[:controller]||resource_name).to_s.camelize}Controller",
+                                                                       :action => 'destroy', :id => '1')
+    end
+    
+    def unfold_singleton_resource_routeset(resource_name)
+      # rewrite this
+      
+      # GET /<resource_name>      
+      route_for("/#{resource_name}", :method => 'GET').should have_route("#{resource_name.to_s.camelize}sController", :action => 'show')
+
+      # GET /<resource_name>/new
+      route_for("/#{resource_name}/new", :method => 'GET').should have_route("#{resource_name.to_s.camelize}sController", :action => 'new')
+
+      # POST /<resource_name>
+      route_for("/#{resource_name}", :method => 'POST').should have_route("#{resource_name.to_s.camelize}sController", :action => 'create')
+
+      # GET /<resource_name>/1
+      route_for("/#{resource_name}/1", :method => 'GET').should be_missing
+
+      # GET /<resource_name>/edit
+      route_for("/#{resource_name}/edit", :method => 'GET').should have_route("#{resource_name.to_s.camelize}sController", :action => 'edit')
+
+      # PUT /<resource_name>
+      route_for("/#{resource_name}", :method => 'PUT').should have_route("#{resource_name.to_s.camelize}sController", :action => 'update')
+
+      # DELETE /<resource_name>
+      route_for("/#{resource_name}", :method => 'DELETE').should have_route("#{resource_name.to_s.camelize}sController", :action => 'destroy')      
     end
 
   end
@@ -197,7 +228,8 @@ class FailApp
     [ 400, { "Content-Type" => 'text/html' }, "418 I'm a teapot" ]
   end
 end
- 
+
+
 Object.instance_eval do
   def const_missing(name)
     if name.to_s =~ /App$|[A-Z]{1}[a-z]+Controller$/
