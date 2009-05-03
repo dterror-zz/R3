@@ -1,5 +1,7 @@
-# Shameless rip of from rack-router's spec helper.
-# These helpers should be distributed, really.
+# Most parts are ripped-off from rack-router's spec helper.
+
+# Refactor this thing. Use a proper stubing framekwork or something
+# remove the unfolding of restful routes thing. Tough the intention is good, it really sucks
 
 
 $LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
@@ -11,7 +13,7 @@ require 'r3'
  
 module Spec
   module Helpers
- 
+    
     def draw(options={}, &block)
       router.draw(options,&block)
     end
@@ -41,6 +43,7 @@ module Spec
        R3::Router.new.draw(options={},&block)
     end
     
+    
     def env_for(path, options = {})
       env = {}
       env["REQUEST_METHOD"]  = (options.delete(:method) || "GET").to_s.upcase
@@ -53,9 +56,42 @@ module Spec
       env
     end
     
+    
     def route_for(path, options = {})
       @app.call env_for(path, options)
     end
+    
+    
+    def url_for(arg)
+      case arg
+      when AR::ActiveRecordStub
+        model = arg
+        route_name = "#{model.class.to_s.downcase}_path"
+        send(route_name.to_sym, model)
+      when Hash
+        # app generate doesn't support this
+        @app.generate(arg)
+      end
+    end
+    
+    def method_missing(name, *args)
+      # testing only _path methods, _url is a rails thing. It's supposed to work
+      # refactor, boy, refactor this whole helper thing...
+      if name.to_s =~ /(\w+)_path$/
+        params = {}
+        params.update(args.pop) if args.last.is_a?(Hash)
+        model = args[0]
+        # building the mocked rails options hash
+        options = {}
+        options[:use_route] = $1.to_sym
+        options[:id] = model if model
+        options.update(params)#.update(current_request_params)
+        @app.generate(options)
+      else
+        super(name, *args)
+      end
+    end
+    
     
     def unfold_resourceful_routeset(resource_name, options = {})
       # Rewrite this
@@ -229,6 +265,33 @@ class FailApp
   end
 end
 
+# Beautiful
+module AR  
+  class ActiveRecordStub
+    def self.find(num)
+      new(num)
+    end
+    
+    def initialize(record_id=nil)
+      @record_id = record_id
+    end
+    
+    def new_record?
+      @record_id.nil?
+    end
+    
+    def to_param
+      @record_id
+    end 
+  end
+  
+  instance_eval do
+    def const_missing(name)
+      # const_set(name, ActiveRecordStub)
+      instance_eval "class ::#{name} < ActiveRecordStub;end ; ::#{name}"
+    end
+  end
+end
 
 Object.instance_eval do
   def const_missing(name)

@@ -1,5 +1,6 @@
 class R3::Builder
 
+  # This is just a stub so that rails thinks it exists
    class NamedRoutes
       attr_accessor :routes
    

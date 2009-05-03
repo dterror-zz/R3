@@ -19,7 +19,6 @@ describe "Rack::Router behaviour in R3::Router" do
     route_for("/hello/world").should have_env("PATH_INFO" => "", "SCRIPT_NAME" => "/hello/world")
   end
   
-  # Check what's going on with this one
   it "does not let updated PATH_INFO and SCRIPT_NAME bleed across routes" do
     router.draw do |r|
       r.map "/hello", :to => make_router_and_draw { |c| c.map "/world", :to => WorldApp }

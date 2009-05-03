@@ -34,17 +34,17 @@ module R3
     end
 
     def add_route(path, options = {})
-      # Work around, may be more common than expected
+      # Special case as rails doesn't pass it in the requirement hash
       if options[:id] && options[:id].is_a?(Regexp)
-       options[:requirements] ||= {}
-       options[:requirements].merge!({:id => options[:id]})
+        options[:requirements] ||= {}
+        options[:requirements].merge!({:id => options[:id]})
       end
 
       default_params = process_defaults(options)
 
       # Find all implicit optional segments and make them explicit
       path = reveal_implicit_segments(path, default_params.keys)
-      path = "#{options[:path_prefix]}/#{path}"
+      path = "#{options[:path_prefix]}/#{path}" if options[:path_prefix]
 
 
       request_conditions, segment_conditions = process_match_conditions( path,
