@@ -1,8 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-# Maybe remove the unnecessary explicit use of defaults. Could just ignore the :action => 'index' thing
-# but it may be good for undersntadment
-
 describe "static segments connect recognition" do
    
    it "should connect simple url to controller" do
@@ -84,13 +81,17 @@ describe "Dynamic segment connect recognition" do
       
       route_for('/hellostub').should have_route(HellostubController, :action => 'index')
    end
-   
-   # it "should perform globbing" do
-   #    router.draw {|map| map.connect '/photo/*rest', :controller => 'hellostub' } 
-   #    route_for('/photo/and/rest/of/request').should have_route(HellostubController,
-   #                                                                :action => 'index',
-   #                                                                :rest => ['and','rest','of','request'])
-   # end
+
+   # Rails returns an array with the globbed elements, split by segment separator.
+   # R3 is returning the globbed elements in a string
+   it "should perform globbing" do
+      router.draw {|map| map.connect '/photo/*rest', :controller => 'hellostub' } 
+      pending("Consider this a special case, down in the priority list.") do
+        route_for('/photo/and/rest/of/request').should have_route(HellostubController,
+                                                                    :action => 'index',
+                                                                    :rest => ['and','rest','of','request'])
+      end
+   end
    
 end
 

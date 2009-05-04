@@ -1,18 +1,11 @@
-ROUTE GENERATION
+- Hash based Routes -> make it work
+- check whether generating routes from an array of AR objects work
 
 - Check rack router's pending in params_fallback_spec, last lines
-
-
-Polymorphic Routes
-- just gotta check with route definition options (like name_prefix, namespaced routes)
-
-Hash based Routes
-
-
-ROUTE RECOGNITION
-
 - rewrite restful routes test strategy unfold_resourceful_routesets is bad
 - rename spec descriptions so they make more sense semantically
+
+- see reloading of code in development!!
 
 SPECIAL CASES
 

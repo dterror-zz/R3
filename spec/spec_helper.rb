@@ -69,7 +69,6 @@ module Spec
         route_name = "#{model.class.to_s.downcase}_path"
         send(route_name.to_sym, model)
       when Hash
-        # app generate doesn't support this
         @app.generate(arg)
       end
     end
@@ -80,11 +79,21 @@ module Spec
       if name.to_s =~ /(\w+)_path$/
         params = {}
         params.update(args.pop) if args.last.is_a?(Hash)
-        model = args[0]
+        models = args.select {|e| e.kind_of?(AR::ActiveRecordStub) || e.kind_of?(Fixnum) }
         # building the mocked rails options hash
         options = {}
         options[:use_route] = $1.to_sym
-        options[:id] = model if model
+
+        used_resources = $1.split('_').reject {|e| %w( edit new ).include?(e) }
+        # only support two nested levels, it's enough to test
+        if used_resources.length == 2
+          options[:"#{models[0].class.to_s.downcase}_id"] = models[0]
+          options[:id] = models[1]
+        else
+          options[:id] = models[0]
+        end
+        
+         # options[:id] = models[0] if models[0]
         options.update(params)#.update(current_request_params)
         @app.generate(options)
       else

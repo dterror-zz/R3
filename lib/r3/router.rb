@@ -45,21 +45,28 @@ module R3
       named_routes.install(destinations, regenerate_code)
     end
     
+    def options_to_params!(options)
+      objects_ids = {}
+      options.each do |k,v|
+        objects_ids[k] = options.delete(k).to_param if v.respond_to?(:to_param)
+      end
+      objects_ids
+    end
+    
     def generate(options, recall = {}, method=:generate)
       params, fallback = {}, {}
       named_route_name = options.delete(:use_route)
       if named_route_name
-        params[:id] = options.delete(:id).to_param if options[:id] && options[:id].respond_to?(:to_param)
+        params.update(options_to_params!(options)).reject! {|k,v|  [:controller, :action, :format].include?(k) }
         fallback = options
         url(named_route_name, params, fallback)
       else
-        url(options)
+        #nil
       end
-
-      # url(name, options, fallback)
     end
     
     # Refactor this whole thing. It needs strategy.
+    # It's using an alias to the original rack-router/routable call method
     def call(env)
        res = routable_call(env)
        if res[1]["X-Rack-Rotuter-Status"] == "404 Not Found" && !env['rack_router.testing']

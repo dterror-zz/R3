@@ -193,6 +193,15 @@ describe "With RESTful routes" do
        route_for('/posts/latests').should have_route(PostsController, :action => 'latests')
        route_for('/posts/search').should have_route(PostsController, :action => 'search')
      end
+     
+     it "should add a new action with the :new option" do
+       router.draw {|map| map.resources :posts, :new => { :latests => :get } }
+       
+       route_for('/posts').should have_route(PostsController)
+       pending("Special case, down in the priority list") do
+         route_for('/posts/latests').should have_route(PostsController, :action => 'latests')
+       end
+     end
           
    end
    

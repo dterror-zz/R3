@@ -5,7 +5,7 @@ module R3
      autoload :DynamicController,   'r3/builder/dynamic_controller'
      autoload :NamedRoutes,         'r3/builder/named_routes'
      
-     # Load the required rails additions (monkey patches)
+     # Load the required rails additions, that's to say monkey patches
      load('r3/builder/rails_ext.rb')
     
      OPTIONS = [ :path_prefix, :name_prefix, :namespace, :requirements, :defaults, :conditions, :request_method ]
