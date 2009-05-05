@@ -39,10 +39,11 @@ module R3
         options[:requirements] ||= {}
         options[:requirements].merge!({:id => options[:id]})
       end
+      
 
       default_params = process_defaults(options)
 
-      # Find all implicit optional segments and make them explicit
+
       path = reveal_implicit_segments(path, default_params.keys)
       path = "#{options[:path_prefix]}/#{path}" if options[:path_prefix]
 
@@ -119,9 +120,17 @@ module R3
     end
      
     def reveal_implicit_segments(path, params)
-       regexp = params.join('|')
-       regexp = %r'((?:/|\.):(?:#{regexp}))'
-       path.gsub(regexp, '(\1)')
+      # Find all implicit optional segments and make them explicit
+      # in simple map.connect, :action and :id are optional
+      # in restful definition, :id is not optional and :format is optional
+      # here, I'm reckoning that if it has a :controller or a :action, they're to be implicitly optional
+      if %r[:controller|:action].match(path)
+        regexp = params.join('|')
+      else
+        regexp = :format
+      end
+      regexp = %r'((?:/|\.):(?:#{regexp}))'
+      path.gsub(regexp, '(\1)')
     end
 
     def upcase_method(method)

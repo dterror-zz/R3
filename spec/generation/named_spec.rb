@@ -11,8 +11,8 @@ describe "R3::Router#generate" do
       new_post_path.should == '/posts/new'
       post = AR::Post.find(1)
       post_path(post).should == '/posts/1'
-      post_path(1).should == '/posts/1'
-      edit_post_path(post).should == '/posts/1/edit'    
+      post_path(post).should == '/posts/1'
+      edit_post_path(post).should == '/posts/1/edit'
     end
     
     it "should understand working with AR instances" do
@@ -21,12 +21,6 @@ describe "R3::Router#generate" do
       post = AR::Post.find(12)
       url_for(post).should == '/posts/12'
       url_for(post).should_not == '/posts/1'
-    end
-    
-    it "should understand working with new AR instances" do
-      router.draw {|map| map.resources :posts }
-      
-      url_for(AR::Post.new).should == '/posts'
     end
     
     it "should include non-resourceful named routes" do

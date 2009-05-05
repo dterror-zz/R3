@@ -1,11 +1,9 @@
 - Hash based Routes -> make it work
-- check whether generating routes from an array of AR objects work
 
+- remove the html as default format, it doesn't need to be passed in the request every time
 - Check rack router's pending in params_fallback_spec, last lines
 - rewrite restful routes test strategy unfold_resourceful_routesets is bad
 - rename spec descriptions so they make more sense semantically
-
-- see reloading of code in development!!
 
 SPECIAL CASES
 

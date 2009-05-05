@@ -92,10 +92,8 @@ module Spec
         else
           options[:id] = models[0]
         end
-        
-         # options[:id] = models[0] if models[0]
-        options.update(params)#.update(current_request_params)
-        @app.generate(options)
+        options.update(params)
+        @app.generate(options,{})
       else
         super(name, *args)
       end
@@ -274,9 +272,14 @@ class FailApp
   end
 end
 
-# Beautiful
-module AR  
-  class ActiveRecordStub
+# Awful
+class R3::Router::ActiveRecord
+  class Base
+  end
+end
+
+module AR
+  class ActiveRecordStub < R3::Router::ActiveRecord::Base
     def self.find(num)
       new(num)
     end

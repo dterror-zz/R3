@@ -45,25 +45,6 @@ module R3
       named_routes.install(destinations, regenerate_code)
     end
     
-    def options_to_params!(options)
-      objects_ids = {}
-      options.each do |k,v|
-        objects_ids[k] = options.delete(k).to_param if v.respond_to?(:to_param)
-      end
-      objects_ids
-    end
-    
-    def generate(options, recall = {}, method=:generate)
-      params, fallback = {}, {}
-      named_route_name = options.delete(:use_route)
-      if named_route_name
-        params.update(options_to_params!(options)).reject! {|k,v|  [:controller, :action, :format].include?(k) }
-        fallback = options
-        url(named_route_name, params, fallback)
-      else
-        #nil
-      end
-    end
     
     # Refactor this whole thing. It needs strategy.
     # It's using an alias to the original rack-router/routable call method
@@ -73,6 +54,40 @@ module R3
           raise ActionController::RoutingError, "No routes matched"
        end
        res
+    end
+    
+    
+    def generate(options, recall = {}, method=:generate)
+      params, fallback = {}, {}
+      named_route_name = options.delete(:use_route)
+      begin
+        if named_route_name
+          params = normalize_options(options)
+          fallback = recall
+          url(named_route_name, params, fallback)
+        else
+          #nil
+        end
+      rescue ArgumentError
+        raise ActionController::RoutingError, "could not generate route for #{named_route_name} with parameters #{params.inspect}"
+      end
+    end
+    
+    
+    protected
+    
+    def normalize_options(options)
+      options.delete(:format) if options[:format] && options[:format] == "html" # for now
+      # when it expects a model and you don't give it, it implicitly puts a regexp in its place
+      options.delete(:id) if options[:id] && options[:id].is_a?(Regexp)
+      options.reject! {|k,v| [ :action, :controller ].include?(k)  }
+      model_to_params(options)
+    end
+    
+    def model_to_params(options)
+      options.each do |k,v|
+        options[k] = options.delete(k).to_param if v.kind_of?(ActiveRecord::Base)
+      end
     end
     
  end
