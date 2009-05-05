@@ -79,7 +79,7 @@ module R3
     def normalize_options(options)
       options.delete(:format) if options[:format] && options[:format] == "html" # for now
       # when it expects a model and you don't give it, it implicitly puts a regexp in its place
-      options.delete(:id) if options[:id] && options[:id].is_a?(Regexp)
+      options.reject! {|k,v| v.is_a?(Regexp) }
       options.reject! {|k,v| [ :action, :controller ].include?(k)  }
       model_to_params(options)
     end
