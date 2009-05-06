@@ -92,6 +92,17 @@ describe "Dynamic segment connect recognition" do
                                                                     :rest => ['and','rest','of','request'])
       end
    end
+
+   # It won't pass because of the way stubing is done. I'll rewrite the spec as soon as I can
+   # it "should be smart about segmens" do
+   #   router.draw {|map| map.connect ':controller/:action/:id' }
+   # 
+   #   class Admin;end
+   #   Admin::PostsController = AnystubController # just so that const_missing does its magic
+   #   # pending("That'll require a change in how rack_router matches path_info") do
+   #     route_for('/admin/posts/act').should have_route(Admin::PostsController, :action => 'act')
+   #   # end
+   # end
    
 end
 

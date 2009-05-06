@@ -50,8 +50,8 @@ module R3
     # It's using an alias to the original rack-router/routable call method
     def call(env)
        res = routable_call(env)
-       if res[1]["X-Rack-Rotuter-Status"] == "404 Not Found" && !env['rack_router.testing']
-          raise ActionController::RoutingError, "No routes matched"
+       if res[1]["X-Rack-Router-Status"] == "404 Not Found" && !env['rack_router.testing']
+         raise ActionController::RoutingError, "No routes matched #{env['PATH_INFO']} with #{env['rack_router.params'].inspect}"
        end
        res
     end
@@ -79,6 +79,7 @@ module R3
     def normalize_options(options)
       options.delete(:format) if options[:format] && options[:format] == "html" # for now
       # when it expects a model and you don't give it, it implicitly puts a regexp in its place
+      # which is weird, so get rid of it so we can try and use the fallback hash
       options.reject! {|k,v| v.is_a?(Regexp) }
       options.reject! {|k,v| [ :action, :controller ].include?(k)  }
       model_to_params(options)

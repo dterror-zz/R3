@@ -33,6 +33,27 @@ class Rack::Router::Route
    def segment_keys
      path_info.captures
    end
+      
+   alias :default_handle :handle
+   
+   def handle(request, env)
+     if path_info.segments.include? :controller
+       res = default_handle(request, env)
+       return res if res.is_a?(Array) && res[1]["X-Rack-Router-Status"] != "404 Not Found"
+       # this weird hack is to support rails style of being smart of segments. It conflits with rack_router's
+       # path_info matching mechanism that separates everything between a '/' to be a segment, which makes supporting
+       # namespaced controllers (admin/posts) very hard on default routes. DEFAUT ROUTES ARE EVIL
+
+       # rewrite this route
+       path_info.segments.insert(path_info.segments.index(:controller), :namespace, '/')
+       new_path_info_condition = Rack::Router::Condition.new(:path_info, path_info.segments, segment_conditions, false)
+       @request_conditions[:path_info] = new_path_info_condition
+       # and call it again
+       default_handle(request, env)
+     else
+       default_handle(request, env)
+     end
+   end
    
 end
 

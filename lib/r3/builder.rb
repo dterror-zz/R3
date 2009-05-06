@@ -112,6 +112,7 @@ module R3
        segment_conditions.delete(:action)
        segment_conditions.delete(:controller)
        
+       
        request_conditions[:path_info] = Rack::Router::Parsing.parse(path) do |segment_name, delimiter|
           segment_conditions[segment_name] = /.+/ if delimiter == '*'
        end
