@@ -34,12 +34,11 @@ module R3
     end
 
     def add_route(path, options = {})
-      # Special case as rails doesn't pass it in the requirement hash
-      if options[:id] && options[:id].is_a?(Regexp)
-        options[:requirements] ||= {}
-        options[:requirements].merge!({:id => options[:id]})
+      # Special case as rails doesn't pass them in the requirement hash
+      options[:requirements] ||= {}
+      options.each do |k,v|
+        options[:requirements].merge!({k => v}) if v.is_a?(Regexp)        
       end
-      
 
       default_params = process_defaults(options)
 

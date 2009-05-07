@@ -3,11 +3,12 @@ class R3::Builder
    class DynamicController
      def self.call(env)
        begin
-         params     = env["rack_router.params"]   
+         params     = env["rack_router.params"]
          # in case my route rewriting hack has made its made
+         # it's a shame that this has to be done
          if params[:namespace]
            params[:controller] = [params[:namespace], params[:controller]].join("/")
-         end
+         end   
          controller = "#{params[:controller].camelize}Controller".constantize           
          controller.call(env).to_a
        rescue NameError => e

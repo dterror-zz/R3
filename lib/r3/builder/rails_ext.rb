@@ -4,4 +4,6 @@ class ActionController::Routing::RouteSet::Mapper
        route = Rack::Router::Builder::Simple.new.map(*args).pop
        @set.add_route_directly(route)
     end
+
+    alias :mount :map
 end
